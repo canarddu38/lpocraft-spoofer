@@ -34,6 +34,8 @@ namespace lpocraftspoofer
 
 			return new TcpClient { Client = socket };
 		}
+		const int PORT_NO = 25565;
+		const string SERVER_IP = "mc.hypixel.net";
 		public static void Main()
 		{
 			Console.Write("Entrez l'ip du serveur: ");
@@ -44,16 +46,47 @@ namespace lpocraftspoofer
 			
 			var ipEndPoint = new IPEndPoint(IPAddress.Any, 25565);
 			TcpListener listener = new TcpListener(ipEndPoint);
-			// TcpClient client = CreateTcpClient("http://"+ip+":25565");
 			
 			listener.Start();
-
+			
+			TcpClient client = new TcpClient(SERVER_IP, PORT_NO);
+			NetworkStream nwStream = client.GetStream();
+			
 			Socket socket = listener.AcceptSocket();
-			while(socket.Connected)
+			while(socket.Connected && client.Connected)
 			{
+				
+				// receive from local
+				Console.WriteLine("--- receive local bytes ---");
 				int bytes = socket.Receive(bytesReceived, bytesReceived.Length, 0);
-				// receivEncoding.ASCII.GetString(bytesReceived, 0, bytes);
 				Console.WriteLine(bytes.ToString());
+				
+				// send to server
+				Console.WriteLine("--- send the bytes to server ---");
+				Console.WriteLine("Sending : " + textToSend);
+				nwStream.Write(bytesToSend, 0, bytesToSend.Length);
+				
+				
+				Console.WriteLine("--- receive server bytes ---");
+				byte[] bytesToRead = new byte[client.ReceiveBufferSize];
+				int bytes = nwStream.Read(bytesToRead, 0, client.ReceiveBufferSize);
+				Console.WriteLine("Received : " + Encoding.ASCII.GetString(bytesToRead, 0, bytesRead));
+				
+				// send to server
+
+				
+				
+				
+				
+				
+				
+				
+				
+				byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(textToSend);
+				
+				
+
+				
 			}
 		}
 	}
